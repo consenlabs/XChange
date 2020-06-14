@@ -1,6 +1,8 @@
 package org.knowm.xchange.huobi.service;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import org.knowm.xchange.Exchange;
@@ -11,11 +13,14 @@ import org.knowm.xchange.exceptions.ExchangeException;
 import org.knowm.xchange.huobi.HuobiUtils;
 import org.knowm.xchange.huobi.dto.trade.HuobiCreateOrderRequest;
 import org.knowm.xchange.huobi.dto.trade.HuobiOrder;
+import org.knowm.xchange.huobi.dto.trade.HuobiUserTrade;
 import org.knowm.xchange.huobi.dto.trade.results.HuobiCancelOrderResult;
 import org.knowm.xchange.huobi.dto.trade.results.HuobiOrderInfoResult;
 import org.knowm.xchange.huobi.dto.trade.results.HuobiOrderResult;
 import org.knowm.xchange.huobi.dto.trade.results.HuobiOrdersResult;
+import org.knowm.xchange.huobi.dto.trade.results.HuobiUserTradesResult;
 import org.knowm.xchange.service.trade.params.CurrencyPairParam;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamsAll;
 
 class HuobiTradeServiceRaw extends HuobiBaseService {
   HuobiTradeServiceRaw(Exchange exchange) {
@@ -23,15 +28,21 @@ class HuobiTradeServiceRaw extends HuobiBaseService {
   }
 
   // https://huobiapi.github.io/docs/spot/v1/en/#search-past-orders
-  HuobiOrder[] getHuobiTradeHistory(CurrencyPairParam params) throws IOException {
-    String tradeStates = "partial-filled,partial-canceled,filled";
-    HuobiOrdersResult result =
-        huobi.getOrders(
+  HuobiUserTrade[] getHuobiTradeHistory(TradeHistoryParamsAll params) throws IOException {
+    String types =
+        "buy-market,sell-market,buy-limit,sell-limit,buy-ioc,sell-ioc,buy-limit-maker,sell-limit-maker,buy-stop-limit,sell-stop-limit";
+    DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
+    String direct = "next";
+    HuobiUserTradesResult result =
+        huobi.getMatchResults(
             HuobiUtils.createHuobiCurrencyPair(params.getCurrencyPair()),
-            tradeStates,
-            null, // System.currentTimeMillis() - 48 * 60 * 60_000L,
-            null,
-            null,
+            types,
+            df.format(params.getStartTime()),
+            df.format(params.getEndTime()),
+            params.getStartId(),
+            direct,
+            params.getLimit(),
             exchange.getExchangeSpecification().getApiKey(),
             HuobiDigest.HMAC_SHA_256,
             2,

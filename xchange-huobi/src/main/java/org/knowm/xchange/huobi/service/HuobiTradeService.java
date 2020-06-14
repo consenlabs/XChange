@@ -8,12 +8,14 @@ import org.knowm.xchange.dto.Order.IOrderFlags;
 import org.knowm.xchange.dto.trade.*;
 import org.knowm.xchange.huobi.HuobiAdapters;
 import org.knowm.xchange.huobi.dto.trade.HuobiOrder;
+import org.knowm.xchange.huobi.dto.trade.HuobiUserTrade;
 import org.knowm.xchange.service.trade.TradeService;
 import org.knowm.xchange.service.trade.params.CancelOrderByIdParams;
 import org.knowm.xchange.service.trade.params.CancelOrderParams;
 import org.knowm.xchange.service.trade.params.CurrencyPairParam;
 import org.knowm.xchange.service.trade.params.DefaultTradeHistoryParamCurrencyPair;
 import org.knowm.xchange.service.trade.params.TradeHistoryParams;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamsAll;
 import org.knowm.xchange.service.trade.params.orders.DefaultOpenOrdersParamCurrencyPair;
 import org.knowm.xchange.service.trade.params.orders.OpenOrdersParams;
 
@@ -28,10 +30,11 @@ public class HuobiTradeService extends HuobiTradeServiceRaw implements TradeServ
   /** Huobi trade history only goes back 48h - a new API was promised in 2019-Q1 */
   @Override
   public UserTrades getTradeHistory(TradeHistoryParams tradeHistoryParams) throws IOException {
-    if (!(tradeHistoryParams instanceof CurrencyPairParam)) throw new IllegalArgumentException();
+    if (!(tradeHistoryParams instanceof TradeHistoryParamsAll))
+      throw new IllegalArgumentException();
 
-    HuobiOrder[] openOrders = getHuobiTradeHistory((CurrencyPairParam) tradeHistoryParams);
-    return HuobiAdapters.adaptTradeHistory(openOrders);
+    HuobiUserTrade[] trades = getHuobiTradeHistory((TradeHistoryParamsAll) tradeHistoryParams);
+    return HuobiAdapters.adaptTradeHistory(trades);
   }
 
   @Override

@@ -35,6 +35,7 @@ import org.knowm.xchange.huobi.dto.marketdata.HuobiAsset;
 import org.knowm.xchange.huobi.dto.marketdata.HuobiAssetPair;
 import org.knowm.xchange.huobi.dto.marketdata.HuobiTicker;
 import org.knowm.xchange.huobi.dto.trade.HuobiOrder;
+import org.knowm.xchange.huobi.dto.trade.HuobiUserTrade;
 
 public class HuobiAdapters {
 
@@ -249,29 +250,38 @@ public class HuobiAdapters {
     return order;
   }
 
-  /**
-   * Huobi currently doesn't have trade history API. We simulate it by using the orders history.
-   *
-   * @param order
-   * @return
-   */
-  private static UserTrade adaptTrade(LimitOrder order) {
-    BigDecimal feeAmount =
-        order
-            .getCumulativeAmount()
-            .multiply(order.getLimitPrice())
-            .multiply(fee)
-            .setScale(8, RoundingMode.DOWN);
+  private static UserTrade adaptTrade(HuobiUserTrade trade) {
+    CurrencyPair pair = adaptCurrencyPair(trade.getSymbol());
+    OrderType type = adaptOrderType(trade.getType());
+    Currency feeCurrency = null;
+    BigDecimal feeAmount = null;
+    if (trade.getFilledPoints().compareTo(BigDecimal.ZERO) > 0) {
+      feeCurrency = adaptCurrency(trade.getFeeDeductCurrency());
+      feeAmount = trade.getFilledPoints();
+    } else {
+      switch (type) {
+        case BID:
+          feeCurrency = pair.base;
+          break;
+        case ASK:
+          feeCurrency = pair.base;
+          break;
+        default:
+          return null;
+      }
+      feeAmount = trade.getFilledFees();
+    }
+
     return new UserTrade.Builder()
-        .type(order.getType())
-        .originalAmount(order.getCumulativeAmount())
-        .currencyPair(order.getCurrencyPair())
-        .price(order.getLimitPrice())
-        .timestamp(order.getTimestamp())
-        .id("") // Trade id
-        .orderId(order.getId()) // Original order id
+        .currencyPair(pair)
+        .type(type)
+        .price(trade.getPrice())
+        .originalAmount(trade.getFilledAmount())
+        .feeCurrency(feeCurrency)
         .feeAmount(feeAmount)
-        .feeCurrency(order.getCurrencyPair().counter)
+        .timestamp(trade.getCreatedAt())
+        .id(String.valueOf(trade.getTradeId()))
+        .orderId(String.valueOf(trade.getOrderId()))
         .build();
   }
 
@@ -321,13 +331,21 @@ public class HuobiAdapters {
     return orders;
   }
 
-  public static UserTrades adaptTradeHistory(HuobiOrder[] openOrders) {
-    OpenOrders orders = adaptOpenOrders(openOrders);
+  public static UserTrades adaptTradeHistory(HuobiUserTrade[] huobiTrades) {
     List<UserTrade> trades = new ArrayList<>();
-    for (LimitOrder order : orders.getOpenOrders()) {
-      trades.add(adaptTrade(order));
+    long maxId = 0;
+    for (HuobiUserTrade trade : huobiTrades) {
+      trades.add(adaptTrade(trade));
+      System.out.println("" + trade.getCreatedAt() + " " + trade.getId());
     }
-    return new UserTrades(trades, TradeSortType.SortByTimestamp);
+
+    int length = huobiTrades.length;
+    if (length > 0) {
+      return new UserTrades(
+          trades, 0, TradeSortType.SortByTimestamp, huobiTrades[length - 1].getId());
+    } else {
+      return new UserTrades(trades, 0, TradeSortType.SortByTimestamp, "");
+    }
   }
 
   public static List<FundingRecord> adaptFundingHistory(HuobiFundingRecord[] fundingRecords) {
