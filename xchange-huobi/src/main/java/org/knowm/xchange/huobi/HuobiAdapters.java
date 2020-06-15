@@ -186,6 +186,15 @@ public class HuobiAdapters {
     Order order = null;
     OrderType orderType = adaptOrderType(openOrder.getType());
     CurrencyPair currencyPair = adaptCurrencyPair(openOrder.getSymbol());
+    BigDecimal avgPrice = null;
+
+    if (openOrder.getFieldAmount() != null
+        && openOrder.getFieldAmount().compareTo(BigDecimal.ZERO) != 0) {
+      avgPrice =
+          openOrder
+              .getFieldCashAmount()
+              .divide(openOrder.getFieldAmount(), 8, BigDecimal.ROUND_DOWN);
+    }
     if (openOrder.isMarket()) {
       order =
           new MarketOrder(
@@ -194,9 +203,7 @@ public class HuobiAdapters {
               currencyPair,
               String.valueOf(openOrder.getId()),
               openOrder.getCreatedAt(),
-              openOrder
-                  .getFieldCashAmount()
-                  .divide(openOrder.getFieldAmount(), 8, BigDecimal.ROUND_DOWN),
+              avgPrice,
               openOrder.getFieldAmount(),
               openOrder.getFieldFees(),
               adaptOrderStatus(openOrder.getState()),
@@ -211,9 +218,7 @@ public class HuobiAdapters {
               String.valueOf(openOrder.getId()),
               openOrder.getCreatedAt(),
               openOrder.getPrice(),
-              openOrder
-                  .getFieldCashAmount()
-                  .divide(openOrder.getFieldAmount(), 8, BigDecimal.ROUND_DOWN),
+              avgPrice,
               openOrder.getFieldAmount(),
               openOrder.getFieldFees(),
               adaptOrderStatus(openOrder.getState()),
@@ -229,9 +234,7 @@ public class HuobiAdapters {
               openOrder.getCreatedAt(),
               openOrder.getStopPrice(),
               openOrder.getPrice(),
-              openOrder
-                  .getFieldCashAmount()
-                  .divide(openOrder.getFieldAmount(), 8, BigDecimal.ROUND_DOWN),
+              avgPrice,
               openOrder.getFieldAmount(),
               openOrder.getFieldFees(),
               adaptOrderStatus(openOrder.getState()),

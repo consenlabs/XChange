@@ -130,7 +130,10 @@ public class HuobiOrder {
   }
 
   public boolean isLimit() { // startswith to support -fok and -ioc
-    return getType().startsWith("buy-limit") || getType().startsWith("sell-limit");
+    return getType().startsWith("buy-limit")
+        || getType().startsWith("sell-limit")
+        || getType().startsWith("buy-ioc")
+        || getType().startsWith("sell-ioc");
   }
 
   public boolean isMarket() {

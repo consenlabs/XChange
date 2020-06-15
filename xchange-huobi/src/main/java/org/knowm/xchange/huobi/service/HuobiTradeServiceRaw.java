@@ -87,7 +87,9 @@ class HuobiTradeServiceRaw extends HuobiBaseService {
       throw new ExchangeException("Unsupported order type.");
     }
     if (limitOrder.hasFlag(HuobiTradeService.FOK)) type = type + "-fok";
-    if (limitOrder.hasFlag(HuobiTradeService.IOC)) type = type + "-ioc";
+    if (limitOrder.hasFlag(HuobiTradeService.IOC)) {
+      type = type.replace("limit", "ioc");
+    }
 
     HuobiOrderResult result =
         huobi.placeLimitOrder(
