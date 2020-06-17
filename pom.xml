@@ -68,7 +68,7 @@
     <system>GitHub</system>
     <url>https://github.com/knowm/XChange/issues</url>
   </issueManagement>
-
+<!--
   <distributionManagement>
     <snapshotRepository>
       <id>sonatype-nexus-snapshots</id>
@@ -81,6 +81,19 @@
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
     <downloadUrl>https://oss.sonatype.org/content/groups/public/org/knowm/xchange</downloadUrl>
+  </distributionManagement>
+-->
+  <distributionManagement>
+    <repository>
+      <id>imtoken</id>
+      <name>Nexus Release Repository</name>
+      <url>https://nexus.token.im/repository/im-releases/</url>
+    </repository>
+    <snapshotRepository>
+      <id>imtoken</id>
+      <name>Nexus Snapshot Repository</name>
+      <url>https://nexus.token.im/repository/im-snapshots/</url>
+    </snapshotRepository>
   </distributionManagement>
 
   <scm>
