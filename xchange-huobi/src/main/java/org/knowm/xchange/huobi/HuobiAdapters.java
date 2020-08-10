@@ -267,7 +267,7 @@ public class HuobiAdapters {
           feeCurrency = pair.base;
           break;
         case ASK:
-          feeCurrency = pair.base;
+          feeCurrency = pair.counter;
           break;
         default:
           return null;
