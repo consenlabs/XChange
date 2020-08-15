@@ -35,6 +35,7 @@ import org.knowm.xchange.huobi.dto.marketdata.HuobiAsset;
 import org.knowm.xchange.huobi.dto.marketdata.HuobiAssetPair;
 import org.knowm.xchange.huobi.dto.marketdata.HuobiTicker;
 import org.knowm.xchange.huobi.dto.trade.HuobiOrder;
+import org.knowm.xchange.huobi.dto.trade.HuobiOrderEvent;
 import org.knowm.xchange.huobi.dto.trade.HuobiUserTrade;
 
 public class HuobiAdapters {
@@ -418,5 +419,29 @@ public class HuobiAdapters {
       default:
         return null;
     }
+  }
+
+  public static UserTrade adaptTrade(HuobiOrderEvent event) {
+    if (!event.getEventType().equals("trade")) {
+      return null;
+    }
+    CurrencyPair currencyPair = adaptCurrencyPair(event.getSymbol());
+    BigDecimal price = new BigDecimal(event.getTradePrice());
+    BigDecimal originalAmount = new BigDecimal(event.getTradeVolume());
+    String orderId = String.valueOf(event.getOrderId());
+    OrderType orderType = adaptOrderType(event.getType());
+    String tradeId = String.valueOf(event.getTradeId());
+    Date timestamp = new Date(event.getTradeTime());
+    return new UserTrade(
+        orderType,
+        originalAmount,
+        currencyPair,
+        price,
+        timestamp,
+        tradeId,
+        orderId,
+        null,
+        null,
+        null);
   }
 }
