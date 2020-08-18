@@ -162,7 +162,9 @@ public class BinanceStreamingExchange extends BinanceExchange implements Streami
 
   @Override
   public boolean isAlive() {
-    return streamingService != null && streamingService.isSocketOpen();
+    if (userDataStreamingService != null) return userDataStreamingService.isSocketOpen();
+    if (streamingService != null) return streamingService.isSocketOpen();
+    return false;
   }
 
   @Override
