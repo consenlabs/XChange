@@ -114,7 +114,7 @@ public class HuobiAdapters {
   private static CurrencyPairMetaData adaptPair(
       HuobiAssetPair pair, CurrencyPairMetaData metadata) {
     BigDecimal minQty =
-        metadata == null || metadata.getMinimumAmount() ==null
+        metadata == null || metadata.getMinimumAmount() == null
             ? null
             : metadata
                 .getMinimumAmount()
