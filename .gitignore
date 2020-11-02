@@ -17,6 +17,7 @@ nb-configuration.xml
 
 # VSCode
 .vscode
+*/*.factorypath
 
 # Generated
 target/

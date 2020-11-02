@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>xchange-huobi</artifactId>
+    <version>5.0.2-SNAPSHOT</version>
 
     <name>XChange Huobi</name>
     <description>XChange implementation for the Huobi Exchange</description>
